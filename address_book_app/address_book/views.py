@@ -1,18 +1,77 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exemp
+from address_book.models import Person, Address, Phone, Email, Group
 # Create your views here.
 
-form = """<form action="http://google.com">
-        <input type="submit" value="Go to Google" />
-        </form>"""
+html_start = """ <html>
+                    <head>
+                    </head>
+                    <body>"""
+
+html_end = """  </body>
+            </html>"""
 
 
 def address_book(request):  # all contacts
-    pass
+    result = html_start
+    persons = Person.objects.all()
+    phone = Phone.objects.all()
+
+    for person in persons:
+        result += """<table>
+                        <tr>
+                            <td><b>ID</b></td>
+                            <td><b>First and Last Name</b></td>
+                            <td><b>Address</b></td>
+                            <td><b>Phone</b></td>
+                            <td><b>Email</b></td>
+                            <td><b>Groups</b></td>
+                        </td>
+                            """
+        result += """
+                        <tr>
+                            <td>{}</td>
+                            """.format(person.id)
+        result += """       <td><a href='/contact_details/{}'><b>{} {}</b></a></td>
+                            <td>{} {} {}<br/> {}<br /></td>
+                        
+                        """.format(person.id,
+                                   person.first_name,
+                                   person.last_name,
+                                   person.address.street,
+                                   person.address.building_num,
+                                   person.address.flat_num,
+                                   person.address.city)
+
+        # for phone in person.phone:
+        #     result += """<td>{}: {}<br/>""".format(phone.type, phone.phone_number)
+        # result += "</td>"
+        #
+        # for email in person.email:
+        #     result += """<td>{}: {}<br/>""".format(email.type, email.email_address)
+        # result += "</td>"
+        #
+        # for group in person.group:
+        #     result += """<td>{}<br/>""".format(group.name)
+        # result += "</td>"
+        #
+        # result += "</td>"
+        result += """<td>
+                        <form action="edit_contact/{}">
+                            <input type="submit" value="Edit">
+                        </form>
+                        <form action="delete_contact/{}">
+                            <input type="submit" value="Delete">
+                        </form></tr></table>"""
+    result+=""" <form action="add_contact/">
+                    <input type="submit" value="Add">
+                </form>"""
+    result += html_end
+
+    return HttpResponse(result)
 
 
-def group_list(reuest):
+def group_list(request):
     pass
 
 
