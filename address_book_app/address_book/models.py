@@ -8,25 +8,25 @@ class Group(models.Model):
         return "{}".format(self.name)
 
 
-class Person(models.Model):
-    first_name = models.CharField(max_length=15)
-    last_name = models.CharField(max_length=20)
-    description = models.CharField(max_length=120, null=True)
-    group = models.ManyToManyField(Group)
-
-    def __str__(self):
-        return "{}, {}, {}, {}".format(self.id, self.first_name, self.last_name, self.description, self.group)
-
-
 class Address(models.Model):
     city = models.CharField(max_length=30)
     street = models.CharField(max_length=30)
     building_num = models.IntegerField()
     flat_num = models.IntegerField(null=True)
-    person = models.ForeignKey(Person, on_delete=models.CASCADE)
 
     def __str__(self):
-        return "{}, {}, {}, {}, {}".format(self.city, self.street, self.building_num, self.flat_num, self.person)
+        return "{}, {}, {}, {}, {}".format(self.id, self.city, self.street, self.building_num, self.flat_num)
+
+
+class Person(models.Model):
+    first_name = models.CharField(max_length=15)
+    last_name = models.CharField(max_length=20)
+    description = models.CharField(max_length=120, null=True)
+    group = models.ManyToManyField(Group)
+    address = models.ForeignKey(Address, on_delete=models.CASCADE, default=None, null=True)
+
+    def __str__(self):
+        return "{}, {}, {}, {}, {}".format(self.id, self.first_name, self.last_name, self.description, self.group)
 
 
 class Phone(models.Model):
