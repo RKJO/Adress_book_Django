@@ -16,54 +16,51 @@ def address_book(request):  # all contacts
     result = html_start
     persons = Person.objects.all()
     phone = Phone.objects.all()
-
-    for person in persons:
-        result += """<table>
+    email = Email.objects.all()
+    result += """<table>
                         <tr>
-                            <td><b>ID</b></td>
-                            <td><b>First and Last Name</b></td>
-                            <td><b>Address</b></td>
-                            <td><b>Phone</b></td>
-                            <td><b>Email</b></td>
-                            <td><b>Groups</b></td>
-                        </td>
+                            <th width=20><b>ID</b></th>
+                            <th width=70><b>First and Last Name</b></th>
+                            <th width=120><b>Address</b></th>
+                            <th width=120><b>Groups</b></th>                            
+                            <th width=100><b>Phone</b></th>
+                            <th width=100><b>Email</b></th>
+                        </tr>
                             """
+    for person in persons:
         result += """
                         <tr>
                             <td>{}</td>
                             """.format(person.id)
         result += """       <td><a href='/contact_details/{}'><b>{} {}</b></a></td>
-                            <td>{} {} {}<br/> {}<br /></td>
-                        
+                            <td>{} {} {} <br>{}</td>                                        
+                            <td>{}</td>                                        
                         """.format(person.id,
                                    person.first_name,
                                    person.last_name,
                                    person.address.street,
                                    person.address.building_num,
                                    person.address.flat_num,
-                                   person.address.city)
+                                   person.address.city,
+                                   person.group.name)
+        result += "<td>"
+        for phones in phone.filter(person=person.id):
+            result += """{}: {}<br>""".format(phones.type, phones.phone_number)
+        result += "</td>"
 
-        # for phone in person.phone:
-        #     result += """<td>{}: {}<br/>""".format(phone.type, phone.phone_number)
-        # result += "</td>"
-        #
-        # for email in person.email:
-        #     result += """<td>{}: {}<br/>""".format(email.type, email.email_address)
-        # result += "</td>"
-        #
-        # for group in person.group:
-        #     result += """<td>{}<br/>""".format(group.name)
-        # result += "</td>"
-        #
-        # result += "</td>"
+        result += "<td>"
+        for emails in email.filter(person=person):
+            result += """{}: {}<br>""".format(emails.type, emails.email_address)
+        result += "</td>"
+
         result += """<td>
                         <form action="edit_contact/{}">
                             <input type="submit" value="Edit">
                         </form>
                         <form action="delete_contact/{}">
                             <input type="submit" value="Delete">
-                        </form></tr></table>"""
-    result+=""" <form action="add_contact/">
+                        </form></td></tr>"""
+    result += """ </table><form action="add_contact/">
                     <input type="submit" value="Add">
                 </form>"""
     result += html_end
