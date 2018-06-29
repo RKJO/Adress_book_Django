@@ -73,8 +73,43 @@ def group_list(request):
 
 
 def contact_details(request, contact_id):
-    pass
+    person_detail = Person.objects.get(id=contact_id)
+    person_phone = Phone.objects.filter(person__id=contact_id)
+    person_email = Email.objects.filter(person__id=contact_id)
+    result = html_start
+    result += """<p><b>ID: </b>{}</p>
+                <p><b>First and Last Name: </b>{} {}</p>
+                <p><b>Description: </b>{}</p>
+                <p><b>Address: </b>{} {} {} <br>{}</p>
+                <p><b>Groups: </b>{}</p>
+                <p><b>Phone numbers: </b>""".format(person_detail.id,
+                                                    person_detail.first_name,
+                                                    person_detail.last_name,
+                                                    person_detail.description,
+                                                    person_detail.address.street,
+                                                    person_detail.address.building_num,
+                                                    person_detail.address.flat_num,
+                                                    person_detail.address.city,
+                                                    person_detail.group.name)
+    for phones in person_phone:
+        result += "{}, {} <br>".format(phones.type, phones.phone_number)
+    result += """</p>
+                <p><b>Emails: </b>"""
 
+    for emails in person_email:
+        result += "{}, {} <br>".format(emails.type, emails.email_address)
+    result += "</p>"
+    result += """<form action="edit_contact/{}">
+                    <input type="submit" value="Edit">
+                </form>
+                <form action="delete_contact/{}">
+                    <input type="submit" value="Delete">
+                </form>
+                <form action="address_book">
+                    <input type="submit" value="Powrót">
+                </form>""" + html_end
+
+    return HttpResponse(result)
 
 def edit_contact(request, contact_edit_id):
     pass
