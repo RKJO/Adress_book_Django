@@ -96,6 +96,7 @@ def group_list(request):
                                            person.last_name)
                 result += "<td>"
     result += """ </table><form>
+                  <input type="button" value="dodaj grupe" onclick="location.href='/create_group/'">
                   <input type="button" value="powrót" onclick="location.href='/address_book/'">
                                 </form>"""
 
@@ -138,24 +139,16 @@ def contact_details(request, contact_id):
                     <input type="submit" value="Delete">
                 </form>""".format(contact_id)
     result += """<form action="address_book">
-                    <input    type="button" value="Powrót" onclick="location.href='/address_book/'">
+                    <input type="button" value="Powrót" onclick="location.href='/address_book/'">
                 </form>""" + html_end
 
     return HttpResponse(result)
 
 
-def edit_contact(request, contact_edit_id):
-    pass
-    # przekierowanie do strony contact_details
-    # dodania lub usunięcia nowego adresu, maila lub telefonu dla niej.
-    # usuniecie danych
-    # Możliwość dodania użytkownika do wielu grup.
-
-
 @csrf_exempt
 def delete_contact(request, contact_delete_id):
     contact_to_delete = Person.objects.get(id=contact_delete_id)
-    result = html_start
+    # result = html_start
     if request.method == "GET":
         # result += """<p>Czy napewno chcesz usuąć ten kontakt?</p><br>
         #                 <form action="#" method="POST">
@@ -169,20 +162,21 @@ def delete_contact(request, contact_delete_id):
         # if answer == "Yes":
         "<p>Kontakt {} {} został usunięty".format(contact_to_delete.first_name, contact_to_delete.last_name)
         contact_to_delete.delete()
+        time.sleep(5)
         # return result
 
         # result += """<form action="address_book">
         #                 <input    type="button" value="Powrót" onclick="location.href='/address_book/'">
         #             </form>""" + html_end
 
-    return HttpResponseRedirect("address_book")
+        return HttpResponseRedirect("address_book")
 
 
 @csrf_exempt
 def add_contact(request):
     answer = html_start
-    all_address = Address.objects.all()
-    all_phones = Phone.objects.all()
+    # all_address = Address.objects.all()
+    # all_phones = Phone.objects.all()
     all_groups = Group.objects.all()
     if request.method == 'GET':
         answer += """<form action="#" method="POST">
@@ -205,7 +199,7 @@ def add_contact(request):
                                 <input type="text" name="flat_num" placeholder="Flat number"></br>
                             <label>Group: </label></br>"""
         for group in all_groups:
-            answer += """<input type="checkbox" name="group" value="{}">{}<br>""".format(group, group.name)
+            answer += """<input type="checkbox" name="group" value="{}">{}<br>""".format(group.id, group.name)
         answer += """<input type="submit" value="Zapisz">
                             </form>
                             """
@@ -223,7 +217,7 @@ def add_contact(request):
         phone_type = request.POST.get("phone_type")
         email = request.POST.get("email")
         email_type = request.POST.get("email_type")
-        group = request.POST.get("group")
+        group = request.POST.getlist("group")
 
         new_person = Person.objects.create(first_name=first_name, last_name=last_name, description=description)
         new_person.save()
@@ -239,21 +233,88 @@ def add_contact(request):
                                  type=phone_type,
                                  person=new_person)
 
-        if email != "":
+        if email != "" or email is not None:
             Email.objects.create(email_address=email, type=email_type, person=new_person)
 
-        if group is not None:
-            new_person.group.add(group)
-
-        # answer = """<p>GIT</p>"""
-        # return HttpResponse(answer)
+        if group is not None or group != '':
+            for group in all_groups:
+                for checked in group:
+                    if group.id == int(checked):
+                        new_person.group.add(group)
 
     return HttpResponseRedirect("contact_details")
 
 
+def edit_contact(request, contact_edit_id):
+    person = Person.obiects.get(pk=contact_edit_id)
+    answer = html_start
+    if request.method == 'GET':
+        answer += """<form action="#" method="POST">
+                            <label>First Name:</label>
+                                <input type="text" name="first_name" placeholder={}><br>
+                            <label>Last Name:</label>
+                                <input type="text" name="last_name" placeholder={}><br>
+                            <label>Description: </label>
+                                <input type="text" name="description" placeholder={}><br>""".format(person.first_name,
+                                                                                                    person.last_name,
+                                                                                                    person.description)
+        answer += """       <label>Phone: </label>
+                                <input type="number" name="phone" placeholder="number">
+                                <input type="text" name="phone_type" placeholder="type"><br>
+                            <label>Email: </label>
+                                <input type="email" name="email" placeholder="email">
+                                <input type="text" name="email_type" placeholder="type"><br>
+                            <label>Address: </label>
+                                <input type="text" name="city" placeholder="City">
+                                <input type="text" name="street" placeholder="Street">
+                                <input type="text" name="building_num" placeholder="Building Number">
+                                <input type="text" name="flat_num" placeholder="Flat number"></br>
+                            <label>Group: </label></br>"""
+        for group in all_groups:
+            answer += """<input type="checkbox" name="group" value="{}">{}<br>""".format(group, group.name)
+        answer += """<input type="submit" value="Zapisz">
+                            </form>
+                            """
+
+    return HttpResponse(answer)
+    # przekierowanie do strony contact_details
+    # dodania lub usunięcia nowego adresu, maila lub telefonu dla niej.
+    # usuniecie danych
+    # Możliwość dodania użytkownika do wielu grup.
+
 #przekierowanie do strony contct_details
 
 
+@csrf_exempt
 def create_group(request):
-    pass
-    # Możliwość dodania do grupy wielu użytkowników.
+    result = html_start
+    if request.method == 'GET':
+        result += """</label><form action=# method="POST">
+                <label>Group: </label>
+                 <input type='text' name='group_name'>
+                 <input type="submit" value="Zapisz"></form>"""
+
+    if request.method == "POST":
+        group_name = request.POST.get('group_name')
+        Group.objects.create(name=group_name)
+        result += "Założono grupę '{}'<br><br>".format(group_name)
+        result += """<a href='/group_list/'>
+                    <button type="button">Pokaż grupy</button>
+                    </a>"""
+        result += html_end
+
+    return HttpResponse(result)
+
+
+def delete_group(request, group_delete_id):
+    result = html_start
+    if request.method == "GET":
+        group = Group.objects.get(id=group_delete_id)
+        group.delete()
+        result += "Grupa '{}' skasowana<br><br>".format(group.name)
+    result += """<a href='/group_list/'>
+                        <button type="button">Pokaż grupy</button>
+                        </a>"""
+    result += html_end
+
+    return HttpResponse(result)

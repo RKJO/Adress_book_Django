@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, re_path
 from address_book.views import address_book, contact_details, edit_contact, delete_contact, add_contact, group_list, \
-    create_group
+    create_group, delete_group
 
 
 urlpatterns = [
@@ -25,6 +25,7 @@ urlpatterns = [
     re_path(r'^contact_details/(?P<contact_id>\d+)', contact_details),
     re_path(r'^edit_contact/(?P<contact_edit_id>\d+)', edit_contact),
     re_path(r'^delete_contact/(?P<contact_delete_id>\d+)', delete_contact),
+    re_path(r'^delete_group/(?P<group_delete_id>\d+)', delete_group),
     re_path(r'^add_contact/', add_contact),
     re_path(r'^create_group/', create_group),
     re_path(r'^group_list/', group_list),
