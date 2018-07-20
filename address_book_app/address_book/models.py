@@ -26,7 +26,12 @@ class Person(models.Model):
     address = models.ForeignKey(Address, on_delete=models.CASCADE, default=None, null=True)
 
     def __str__(self):
-        return "{}, {}, {}, {}, {}".format(self.id, self.first_name, self.last_name, self.description, self.group)
+        return "{}, {}, {}, {}, {}, {}".format(self.id,
+                                               self.first_name,
+                                               self.last_name,
+                                               self.description,
+                                               self.address,
+                                               self.group)
 
 
 class Phone(models.Model):
