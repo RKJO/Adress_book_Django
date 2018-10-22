@@ -1,2 +1,2 @@
 # Adress_book_Django
-Simple app in Django 
+My first app in django. A app used to create contact base. 
